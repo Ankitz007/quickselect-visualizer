@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to the Quickselect Algorithm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tab-link.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .array-element {
+            transition: all 0.5s ease-in-out;
+            min-width: 40px;
+        }
+
+        .pointer {
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+        }
+
+        .pointer.visible {
+            opacity: 1;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-4 md:sticky md:top-0 md:h-screen">
+            <h1 class="text-xl font-bold text-indigo-600 mb-6">Quickselect Guide</h1>
+            <nav id="navigation" class="flex flex-row md:flex-col gap-2">
+                <a href="#introduction"
+                    class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Introduction</a>
+                <a href="#visualizer" class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Visualizer</a>
+                <a href="#partition-schemes" class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Partition
+                    Schemes</a>
+                <a href="#applications"
+                    class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Applications</a>
+                <a href="#comparison" class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Comparison</a>
+                <a href="#conclusion" class="nav-link p-3 rounded-lg text-slate-700 hover:bg-slate-100">Conclusion</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-10">
+            <div id="content-container" class="max-w-4xl mx-auto space-y-12">
+
+                <section id="introduction" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Introduction to Quickselect</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-3">What is Quickselect?</h3>
+                        <p class="text-slate-600 leading-relaxed">Quickselect is a selection algorithm designed to
+                            efficiently find the <em>k</em>th smallest element in an unordered list, also known as the
+                            <em>k</em>th order statistic. Developed by Tony Hoare, it's a cousin to the famous Quicksort
+                            algorithm. Its key advantage is speed: it avoids the computational expense of a full sort.
+                            Instead of ordering every element, Quickselect cleverly narrows the search space,
+                            exemplifying the principle of performing only necessary work to solve a problem.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-3">Quickselect vs. Quicksort</h3>
+                        <p class="text-slate-600 leading-relaxed">Both algorithms use a pivot to partition the array.
+                            However, their goals differ. Quicksort aims to sort the <em>entire</em> array, so it
+                            recursively processes <em>both</em> partitions created by the pivot. Quickselect has a more
+                            focused goal: find only the <em>k</em>th element. Therefore, after partitioning, it
+                            intelligently discards one partition and only recurses into the one that must contain the
+                            element it's looking for. This selective recursion is why Quickselect has a superior
+                            average-case time complexity of O(n) for selection problems, compared to Quicksort's O(n log
+                            n).</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-3">Time and Space Complexity</h3>
+                        <p class="text-slate-600 leading-relaxed">Quickselect boasts an average-case time complexity of
+                            O(n), making it highly efficient. This is because, on average, each partitioning step
+                            significantly reduces the problem size. However, in its worst-case scenario (e.g.,
+                            consistently picking the smallest or largest element as a pivot), its time complexity can
+                            degrade to O(n²). To mitigate this, strategies like choosing a random pivot or using a
+                            "median-of-three" approach are often employed. In terms of space, Quickselect is an in-place
+                            algorithm, requiring only O(1) auxiliary space, especially with tail call optimization.</p>
+                    </div>
+                </section>
+
+                <section id="visualizer" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Interactive Visualizer</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <p class="text-slate-600 leading-relaxed mb-4">This visualizer demonstrates the Quickselect
+                            algorithm in action. Enter an array of numbers (comma-separated), specify the 'k'th smallest
+                            element to find (1-based index), and choose a partitioning scheme. Use the "Next Step"
+                            button to walk through the process and see how the array is partitioned until the element is
+                            found.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label for="input-array" class="block text-sm font-medium text-slate-700 mb-1">Array
+                                    (comma-separated)</label>
+                                <input type="text" id="input-array"
+                                    class="w-full p-2 border border-slate-300 rounded-md"
+                                    value="8, 2, 4, 7, 1, 3, 9, 6, 5">
+                            </div>
+                            <div>
+                                <label for="input-k" class="block text-sm font-medium text-slate-700 mb-1">Find k-th
+                                    smallest (e.g., 5)</label>
+                                <input type="number" id="input-k" class="w-full p-2 border border-slate-300 rounded-md"
+                                    value="5">
+                            </div>
+                            <div>
+                                <label for="partition-select"
+                                    class="block text-sm font-medium text-slate-700 mb-1">Partition Scheme</label>
+                                <select id="partition-select"
+                                    class="w-full p-2 border border-slate-300 rounded-md bg-white">
+                                    <option value="lomuto">Lomuto</option>
+                                    <option value="hoare">Hoare</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4 mb-6">
+                            <button id="start-btn"
+                                class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75">Start</button>
+                            <button id="next-step-btn"
+                                class="px-6 py-2 bg-slate-600 text-white font-semibold rounded-lg shadow-md hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-opacity-75"
+                                disabled>Next Step</button>
+                            <button id="reset-btn"
+                                class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-75">Reset</button>
+                        </div>
+                        <div id="visualizer-container" class="mt-8 p-4 bg-slate-100 rounded-lg min-h-[200px]">
+                            <div id="array-display"
+                                class="flex justify-center items-end flex-wrap gap-2 mb-4 min-h-[60px]"></div>
+                            <div id="pointers-display"
+                                class="flex justify-center items-start flex-wrap gap-2 min-h-[60px] text-center"></div>
+                            <p id="status-text" class="mt-4 text-center text-slate-700 font-medium h-6"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="partition-schemes" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Partition Schemes</h2>
+                    <div class="bg-white rounded-lg shadow-sm">
+                        <div class="border-b border-slate-200">
+                            <nav id="partition-tabs" class="flex -mb-px px-6" aria-label="Tabs">
+                                <a href="#" data-tab="lomuto"
+                                    class="tab-link active shrink-0 border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700">Lomuto
+                                    Scheme</a>
+                                <a href="#" data-tab="hoare"
+                                    class="tab-link shrink-0 border-b-2 border-transparent px-4 py-4 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700">Hoare
+                                    Scheme</a>
+                            </nav>
+                        </div>
+                        <div id="partition-content" class="p-6">
+                            <div id="lomuto-content" class="space-y-4">
+                                <h3 class="text-xl font-semibold text-slate-800">Lomuto Partition Scheme</h3>
+                                <p class="text-slate-600">The Lomuto scheme is often considered more intuitive. It
+                                    selects a pivot (typically the last element) and partitions other elements into two
+                                    groups: those less than the pivot and those greater than the pivot.</p>
+                                <h4 class="font-semibold mt-4">Pros:</h4>
+                                <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                    <li class="bg-green-50 text-green-800 p-2 rounded-md">Conceptually simpler and
+                                        easier to implement correctly.</li>
+                                    <li class="bg-green-50 text-green-800 p-2 rounded-md">The pivot is guaranteed to be
+                                        in its final sorted position after partitioning.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4">Cons:</h4>
+                                <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                    <li class="bg-red-50 text-red-800 p-2 rounded-md">Performs more swaps on average
+                                        than Hoare's scheme.</li>
+                                    <li class="bg-red-50 text-red-800 p-2 rounded-md">Degrades to O(n²) performance for
+                                        already sorted arrays or arrays with many duplicates.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4">Typical Pointer Movement:</h4>
+                                <p class="text-slate-600">The Lomuto scheme uses one main pointer `j` to scan the array
+                                    and another pointer `i` to mark the boundary of elements smaller than the pivot.
+                                    When `arr[j]` is found to be less than the pivot, `i` is incremented, and `arr[j]`
+                                    is swapped with `arr[i]` to place it in the "smaller" section.</p>
+                            </div>
+                            <div id="hoare-content" class="space-y-4 hidden">
+                                <h3 class="text-xl font-semibold text-slate-800">Hoare Partition Scheme</h3>
+                                <p class="text-slate-600">Hoare's original scheme is generally more efficient. It uses
+                                    two pointers that start at opposite ends of the array and move towards each other,
+                                    swapping elements that are on the wrong side of the pivot.</p>
+                                <h4 class="font-semibold mt-4">Pros:</h4>
+                                <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                    <li class="bg-green-50 text-green-800 p-2 rounded-md">Performs fewer swaps on
+                                        average, making it faster in practice.</li>
+                                    <li class="bg-green-50 text-green-800 p-2 rounded-md">Handles duplicates and sorted
+                                        arrays more efficiently than Lomuto.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4">Cons:</h4>
+                                <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                    <li class="bg-red-50 text-red-800 p-2 rounded-md">Slightly more complex to implement
+                                        correctly.</li>
+                                    <li class="bg-red-50 text-red-800 p-2 rounded-md">The pivot is not necessarily
+                                        placed in its final sorted position after partitioning, which requires careful
+                                        handling in recursive calls.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4">Typical Pointer Movement:</h4>
+                                <p class="text-slate-600">Hoare's scheme uses two pointers, `i` (from left) and `j`
+                                    (from right). `i` moves right past elements smaller than the pivot, and `j` moves
+                                    left past elements larger than the pivot. When both stop, `arr[i]` and `arr[j]` are
+                                    swapped if `i < j`. This continues until `i` and `j` cross.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="applications" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Applications of Quickselect</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <p class="text-slate-600 leading-relaxed mb-4">Quickselect is a versatile algorithm with several
+                            practical applications where finding a specific order statistic is more efficient than a
+                            full sort:</p>
+                        <ul class="list-disc list-inside text-slate-600 space-y-2">
+                            <li><strong>Finding the Median:</strong> One of the most common uses is to find the median
+                                of a dataset (the middle element when sorted). This is crucial in statistics and data
+                                analysis.</li>
+                            <li><strong>Percentiles and Quantiles:</strong> Beyond the median, Quickselect can
+                                efficiently find any percentile or quantile (e.g., 25th percentile, 75th percentile)
+                                within a dataset.</li>
+                            <li><strong>Top-K or Bottom-K Elements:</strong> While it finds the k-th smallest, by
+                                extension, it can be used to identify the top K or bottom K elements. Once the k-th
+                                element is found, all elements to its left (if smaller) or right (if larger) are the
+                                top/bottom K elements.</li>
+                            <li><strong>Data Filtering and Outlier Detection:</strong> In large datasets, Quickselect
+                                can help identify elements that fall within or outside a certain range, aiding in
+                                filtering or detecting outliers without sorting the entire dataset.</li>
+                            <li><strong>Algorithm Optimization:</strong> It serves as a subroutine in other algorithms
+                                that require finding a specific order statistic, such as some linear-time selection
+                                algorithms (e.g., Median-of-Medians).</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="comparison" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Lomuto vs. Hoare: Head-to-Head</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm overflow-x-auto">
+                        <p class="text-slate-600 leading-relaxed mb-4">The choice between Lomuto and Hoare involves a
+                            trade-off between implementation simplicity and raw performance. For most practical,
+                            high-performance applications, Hoare's scheme is the superior choice due to its efficiency
+                            and robustness across different data distributions.</p>
+                        <table class="w-full text-sm text-left text-slate-500">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 rounded-l-lg">Feature</th>
+                                    <th scope="col" class="px-6 py-3">Lomuto Scheme</th>
+                                    <th scope="col" class="px-6 py-3 rounded-r-lg">Hoare Scheme</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b">
+                                    <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
+                                        Efficiency</th>
+                                    <td class="px-6 py-4">More swaps, less efficient with duplicates.</td>
+                                    <td class="px-6 py-4">Fewer swaps, faster in practice.</td>
+                                </tr>
+                                <tr class="bg-slate-50 border-b">
+                                    <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
+                                        Implementation</th>
+                                    <td class="px-6 py-4">Simpler, more intuitive.</td>
+                                    <td class="px-6 py-4">More complex, requires careful handling.</td>
+                                </tr>
+                                <tr class="bg-white border-b">
+                                    <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">Pivot
+                                        Position</th>
+                                    <td class="px-6 py-4">Guaranteed to be in final sorted place.</td>
+                                    <td class="px-6 py-4">Not guaranteed to be in its final place.</td>
+                                </tr>
+                                <tr class="bg-slate-50">
+                                    <th scope="row" class="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">Worst
+                                        Case</th>
+                                    <td class="px-6 py-4">O(n²) with sorted arrays.</td>
+                                    <td class="px-6 py-4">More robust against simple worst cases.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="conclusion" class="space-y-6 scroll-mt-20">
+                    <h2 class="text-3xl font-bold text-slate-900 border-b pb-2">Conclusion</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <p class="text-slate-600 leading-relaxed">Quickselect is an efficient algorithm for finding the
+                            <em>k</em>th smallest element, achieving average-case linear time complexity. Its power
+                            comes from partitioning, with Lomuto's scheme offering simplicity and Hoare's providing
+                            superior practical performance due to fewer swaps and better handling of edge cases.
+                            Understanding these partitioning techniques and the importance of pivot selection is key to
+                            leveraging Quickselect effectively in various applications.</p>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Navigation ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+
+            sections.forEach(section => observer.observe(section));
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // --- Partition Tabs ---
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = {
+                lomuto: document.getElementById('lomuto-content'),
+                hoare: document.getElementById('hoare-content')
+            };
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = link.dataset.tab;
+
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    Object.values(tabContents).forEach(content => content.classList.add('hidden'));
+                    tabContents[tab].classList.remove('hidden');
+                });
+            });
+
+            // --- Visualizer Logic ---
+            const startBtn = document.getElementById('start-btn');
+            const nextStepBtn = document.getElementById('next-step-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const arrayInput = document.getElementById('input-array');
+            const kInput = document.getElementById('input-k');
+            const partitionSelect = document.getElementById('partition-select');
+            const arrayDisplay = document.getElementById('array-display');
+            const pointersDisplay = document.getElementById('pointers-display');
+            const statusText = document.getElementById('status-text');
+
+            let generator;
+            let originalArray = [];
+
+            function renderArray(arr, highlights = {}) {
+                arrayDisplay.innerHTML = '';
+                pointersDisplay.innerHTML = '';
+                arr.forEach((val, index) => {
+                    const element = document.createElement('div');
+                    element.className = 'array-element flex items-center justify-center h-12 w-12 rounded-lg border text-lg font-bold';
+                    element.textContent = val;
+
+                    const pointerContainer = document.createElement('div');
+                    pointerContainer.className = 'flex flex-col items-center justify-start h-12 w-12';
+
+                    let pointerHTML = '';
+
+                    if (highlights.pivot === index) {
+                        element.classList.add('bg-indigo-500', 'text-white', 'border-indigo-600');
+                        pointerHTML += `<span class="pointer visible text-indigo-500 font-semibold">Pivot</span>`;
+                    } else if (highlights.low <= index && index <= highlights.high) {
+                        element.classList.add('bg-slate-200', 'border-slate-400');
+                    } else {
+                        element.classList.add('bg-white', 'border-slate-300', 'opacity-50');
+                    }
+
+                    if (highlights.k_pos === index) {
+                        element.classList.add('ring-4', 'ring-green-400');
+                    }
+
+                    if (highlights.found === index) {
+                        element.classList.remove('bg-indigo-500', 'bg-slate-200');
+                        element.classList.add('bg-green-500', 'text-white', 'border-green-600', 'animate-pulse');
+                        pointerHTML += `<span class="pointer visible text-green-500 font-bold">Found!</span>`;
+                    }
+
+                    if (highlights.i === index) {
+                        pointerHTML += `<span class="pointer visible text-blue-500">i</span>`;
+                    }
+                    if (highlights.j === index) {
+                        pointerHTML += `<span class="pointer visible text-red-500">j</span>`;
+                    }
+
+                    pointerContainer.innerHTML = pointerHTML;
+                    arrayDisplay.appendChild(element);
+                    pointersDisplay.appendChild(pointerContainer);
+                });
+            }
+
+            function updateStatus(text) {
+                statusText.textContent = text;
+            }
+
+            async function* quickselectGenerator(arr, k, low, high, partitionScheme) {
+                let currentArr = [...arr];
+                let currentLow = low;
+                let currentHigh = high;
+                let targetK = k;
+
+                while (currentLow <= currentHigh) {
+                    yield {
+                        arr: currentArr,
+                        low: currentLow, high: currentHigh,
+                        phase: 'start_partition',
+                        status: `Starting partition on subarray [${currentArr.slice(currentLow, currentHigh + 1).join(', ')}]`
+                    };
+
+                    let partitionGenerator;
+                    if (partitionScheme === 'lomuto') {
+                        partitionGenerator = lomutoPartitionGenerator(currentArr, currentLow, currentHigh);
+                    } else {
+                        partitionGenerator = hoarePartitionGenerator(currentArr, currentLow, currentHigh);
+                    }
+
+                    let partitionResult;
+                    for await (const step of partitionGenerator) {
+                        partitionResult = step;
+                        yield { ...step, low: currentLow, high: currentHigh, phase: 'partitioning' };
+                    }
+
+                    const pivotIndex = partitionResult.pivotIndex;
+                    currentArr = partitionResult.arr;
+
+                    yield {
+                        arr: currentArr,
+                        low: currentLow, high: currentHigh, pivot: pivotIndex,
+                        phase: 'partition_done',
+                        status: `Partition complete. Pivot is ${currentArr[pivotIndex]} at index ${pivotIndex}.`
+                    };
+
+                    if (pivotIndex === targetK) {
+                        yield {
+                            arr: currentArr, found: targetK,
+                            phase: 'done',
+                            status: `Found k-th element: ${currentArr[targetK]} at index ${targetK}.`
+                        };
+                        return;
+                    } else if (targetK < pivotIndex) {
+                        currentHigh = pivotIndex - 1;
+                        yield {
+                            arr: currentArr, low: currentLow, high: currentHigh,
+                            phase: 'recurse_left',
+                            status: `k (${targetK}) is smaller than pivot index (${pivotIndex}). Searching left.`
+                        };
+                    } else {
+                        currentLow = pivotIndex + 1;
+                        yield {
+                            arr: currentArr, low: currentLow, high: currentHigh,
+                            phase: 'recurse_right',
+                            status: `k (${targetK}) is larger than pivot index (${pivotIndex}). Searching right.`
+                        };
+                    }
+                }
+            }
+
+            async function* lomutoPartitionGenerator(arr, low, high) {
+                let currentArr = [...arr];
+                const pivotValue = currentArr[high];
+                let i = low - 1;
+
+                yield { arr: currentArr, i: i, j: low, pivot: high, status: `Pivot is ${pivotValue}. Starting scan.` };
+
+                for (let j = low; j < high; j++) {
+                    yield { arr: currentArr, i: i, j: j, pivot: high, status: `Comparing arr[${j}] (${currentArr[j]}) with pivot.` };
+                    if (currentArr[j] < pivotValue) {
+                        i++;
+                        [currentArr[i], currentArr[j]] = [currentArr[j], currentArr[i]];
+                        yield { arr: currentArr, i: i, j: j, pivot: high, status: `Swapping arr[${i}] (${currentArr[i]}) and arr[${j}] (${currentArr[j]}).` };
+                    }
+                }
+
+                [currentArr[i + 1], currentArr[high]] = [currentArr[high], currentArr[i + 1]];
+                const pivotIndex = i + 1;
+                yield { arr: currentArr, pivotIndex: pivotIndex, status: `Final pivot swap. Pivot is now at index ${pivotIndex}.` };
+                return { arr: currentArr, pivotIndex: pivotIndex };
+            }
+
+            async function* hoarePartitionGenerator(arr, low, high) {
+                let currentArr = [...arr];
+                const pivotValue = currentArr[low];
+                let i = low - 1;
+                let j = high + 1;
+
+                yield { arr: currentArr, i, j, pivot: low, status: `Pivot is ${pivotValue}. Initializing pointers.` };
+
+                while (true) {
+                    do {
+                        i++;
+                        yield { arr: currentArr, i, j, pivot: low, status: `Moving i to the right...` };
+                    } while (currentArr[i] < pivotValue);
+                    yield { arr: currentArr, i, j, pivot: low, status: `Pointer i stopped at ${currentArr[i]}.` };
+
+                    do {
+                        j--;
+                        yield { arr: currentArr, i, j, pivot: low, status: `Moving j to the left...` };
+                    } while (currentArr[j] > pivotValue);
+                    yield { arr: currentArr, i, j, pivot: low, status: `Pointer j stopped at ${currentArr[j]}.` };
+
+                    if (i >= j) {
+                        yield { arr: currentArr, pivotIndex: j, status: `Pointers crossed. Partition point is ${j}.` };
+                        return { arr: currentArr, pivotIndex: j };
+                    }
+
+                    [currentArr[i], currentArr[j]] = [currentArr[j], currentArr[i]];
+                    yield { arr: currentArr, i, j, pivot: low, status: `Swapping arr[${i}] (${currentArr[i]}) and arr[${j}] (${currentArr[j]}).` };
+                }
+            }
+
+            function resetVisualizer() {
+                startBtn.disabled = false;
+                nextStepBtn.disabled = true;
+                arrayInput.disabled = false;
+                kInput.disabled = false;
+                partitionSelect.disabled = false;
+                generator = null;
+                renderArray(originalArray);
+                updateStatus('Ready. Press "Start" to begin.');
+            }
+
+            startBtn.addEventListener('click', () => {
+                try {
+                    const arr = arrayInput.value.split(',').map(n => {
+                        const num = parseInt(n.trim(), 10);
+                        if (isNaN(num)) throw new Error("Invalid number in array.");
+                        return num;
+                    });
+                    let k = parseInt(kInput.value, 10);
+                    if (isNaN(k) || k < 1 || k > arr.length) {
+                        throw new Error("K must be a valid number between 1 and the array length.");
+                    }
+                    k = k - 1; // Convert to 0-based index
+
+                    originalArray = [...arr];
+                    const partitionScheme = partitionSelect.value;
+                    generator = quickselectGenerator(arr, k, 0, arr.length - 1, partitionScheme);
+
+                    startBtn.disabled = true;
+                    nextStepBtn.disabled = false;
+                    arrayInput.disabled = true;
+                    kInput.disabled = true;
+                    partitionSelect.disabled = true;
+
+                    updateStatus('Started. Press "Next Step" to advance.');
+                    renderArray(arr, { low: 0, high: arr.length - 1, k_pos: k });
+                } catch (error) {
+                    updateStatus(`Error: ${error.message}`);
+                    renderArray([]);
+                }
+            });
+
+            nextStepBtn.addEventListener('click', async () => {
+                if (!generator) return;
+                const result = await generator.next();
+                if (result.done) {
+                    nextStepBtn.disabled = true;
+                    updateStatus('Algorithm finished!');
+                } else {
+                    const step = result.value;
+                    let highlights = {
+                        low: step.low,
+                        high: step.high,
+                        k_pos: parseInt(kInput.value, 10) - 1,
+                        i: step.i,
+                        j: step.j,
+                        pivot: step.pivot,
+                        found: step.found,
+                    };
+                    renderArray(step.arr, highlights);
+                    updateStatus(step.status);
+                    if (step.phase === 'done') {
+                        nextStepBtn.disabled = true;
+                    }
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                arrayInput.value = "8, 2, 4, 7, 1, 3, 9, 6, 5";
+                kInput.value = "5";
+                originalArray = arrayInput.value.split(',').map(n => parseInt(n.trim(), 10));
+                resetVisualizer();
+            });
+
+            originalArray = arrayInput.value.split(',').map(n => parseInt(n.trim(), 10));
+            resetVisualizer();
+        });
+    </script>
+</body>
+
+</html>
